@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+  <link rel="stylesheet" type="text/css" href="default.css">
+</head>
+<body>
+<h3>Star Wars People:</h3>
+<div id="main"></div>
+<script>
+  var url = window.location.pathname;
+  var filename = url.substring(url.lastIndexOf('/')+1);
+
+  var getUrlParameter = function getUrlParameter(sParam) {
+      var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName,
+          i;
+
+      for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+
+          if (sParameterName[0] === sParam) {
+              return sParameterName[1] === undefined ? true : sParameterName[1];
+          }
+      }
+  };
+  var pageNumber = getUrlParameter('page');
+
+  if (pageNumber === undefined) {
+    pageNumber = 1;
+  }
+
+  var prev = parseInt(pageNumber)-1;
+  var next = parseInt(pageNumber)+1;
+
+  // Star Wars API
+  $.ajax({
+       url: "https://swapi.co/api/people?page="+pageNumber,
+       dataType: "json",
+       success: function(data) {
+        //$('#main').html("We currently have " + data.count + " people being returned <br />");        //alert(data.results.length);
+        var pageTotal = Math.ceil(data.count/10);
+        $('#main').html("<br />");
+        if(pageNumber != 1){
+          $('#main').append("<a  href='/" + filename + "?page=1'>|< Start</a> ");   
+          $('#main').append("<a  href='/" + filename + "?page=" + prev + "'> < Prev</a> ");   
+        } else {
+          $('#main').append("|< Start < Prev ");   
+        }
+        $('#main').append("  Page " + pageNumber + " of " + pageTotal + "  ");   
+        if(pageTotal != pageNumber)
+        {
+          $('#main').append("<a  href='/" + filename + "?page=" + next + "'> Next ></a> ");   
+          $('#main').append("<a  href='/" + filename + "?page=" + pageTotal + "'> End >|</a>");   
+        } else {
+          $('#main').append("Next > End >|");   
+        }
+        $('#main').append("<br />");   
+
+        var arr = data.results;
+
+        $('#main').append("<ul>");   
+        for ( var i = 0, l = arr.length; i < l; i++ ) {
+          //alert(arr[i]);  
+          var obj = arr[i];        
+          var name = obj.name;
+          $('#main').append("<li>" + name.trim() + "</li>");             
+        }
+        $('#main').append("</ul>");   
+
+       }
+  });
+</script> 
+</body>
+</html>
